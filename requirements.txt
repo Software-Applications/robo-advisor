@@ -1,0 +1,4 @@
+# pytest # This is a module. You don't need it
+# datetime # This is a module. You don't need it
+requests
+python-dotenv
