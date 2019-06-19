@@ -1,5 +1,40 @@
 # app/robo_advisor.py
 
+# IMPORT ALL REQUIRED PACKAGES AND MODULES
+import requests
+import dotenv
+import datetime
+import os
+import pprint
+import csv
+import re
+#from data import *
+
+
+# STEP 1: INFORMATION INPUT
+
+stock_symbols = input("ENTER DESIRED STOCK SYMBOLS, SEPERATED BY COMMAS:")
+print(stock_symbols)
+#breakpoint()
+
+
+# this splits user input and creates a list of stock symbols. Required for looping
+stocks = re.findall(r'[^,;\s]+', stock_symbols)
+print(stocks)
+#breakpoint()
+
+# user input validation to check whether user input has 4 characters and is not numberic
+for s in stocks:
+    if len(s) != 4 or s.isnumeric:
+        print("You seem to have entered an invalid entry. Please enter correct stock identifiers.")
+        break   # TODO: add a loop to ask user for input.
+    else:
+        pass    #TODO: i need to handle get requests here
+
+
+
+
+
 print("-------------------------")
 print("SELECTED SYMBOL: XYZ")
 print("-------------------------")
