@@ -88,8 +88,8 @@ if __name__ == "__main__":
         date_keys = list(item["Weekly Time Series"].keys())
         date_keys_f = [to_date(d) for d in date_keys]
         latest_day = max(date_keys_f)
-        latest_day_100 = latest_day - offset_days
-        date_keys_100days_f = [to_date(d).strftime("%Y-%m-%d") for d in date_keys if to_date(d) <= latest_day and to_date(d) >=latest_day_100]
+        latest_day_52weeks = latest_day - offset_days
+        date_keys_52weeks_f = [to_date(d).strftime("%Y-%m-%d") for d in date_keys if to_date(d) <= latest_day and to_date(d) >=latest_day_52weeks]
         latest_day_f = latest_day.strftime("%Y-%m-%d")
         #latest_stock_info = item["Time Series (Daily)"][latest_day_f]
         latest_stock_info = item["Weekly Time Series"][latest_day_f]
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
         # looping through last 52 weeks to extract required variables. useful for writing csv and creating lists for high prices and low prices
         # currently the prgram is looking at less than 52 weeks data because the data set has less than 52 weeks
-        for date in date_keys_100days_f:
+        for date in date_keys_52weeks_f:
             #timeseries_meta = item["Time Series (Daily)"][date]
             timeseries_meta = item["Weekly Time Series"][date]
             weekly_open = timeseries_meta["1. open"]
