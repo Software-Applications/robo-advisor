@@ -13,7 +13,7 @@ from pprint import pprint
 #TODO: Readme File
 
 
-# Alpha Advantage API Information
+# Alphavantage API Information
 load_dotenv() #> loads contents of the .env file into the script's environment
 API_KEY = os.environ.get("ALPHAVANTAGE_API_KEY", "Authentication Error!!") # default to using the "demo" key if an Env Var is not supplied
 

@@ -3,5 +3,4 @@
 # re # This is a module. You don't need it
 requests
 python-dotenv
-pandas 
 pprint
