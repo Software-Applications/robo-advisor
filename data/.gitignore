@@ -4,6 +4,6 @@
 
 # ignore all files in this directory:
 *
-
+*
 # except this gitignore file:
 !.gitignore
