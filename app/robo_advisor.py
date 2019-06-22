@@ -7,11 +7,7 @@ import os
 import csv
 import re
 import json
-import csv
 from pprint import pprint
-
-#TODO: Readme File
-
 
 # Alphavantage API Information
 load_dotenv() #> loads contents of the .env file into the script's environment
@@ -19,7 +15,8 @@ API_KEY = os.environ.get("ALPHAVANTAGE_API_KEY", "Authentication Error!!") # def
 
 # Functions
 def get_response(symbol):
-    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={API_KEY}"
+    #request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={API_KEY}"
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol={symbol}&apikey={API_KEY}"
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
     return parsed_response
@@ -79,7 +76,7 @@ if __name__ == "__main__":
     now_formatted = now.strftime("%Y-%m-%d %H:%M:%S")
 
     # necessary to determine 52 weeks high and low
-    offset_days = datetime.timedelta(days = 100)
+    offset_days = datetime.timedelta(days = 365)
 
 
     for item in stock_data:
@@ -87,13 +84,15 @@ if __name__ == "__main__":
         # Meta data; latest stock info; other necessary variables to get going
         symbol = item['Meta Data']['2. Symbol']
         last_refreshed = item['Meta Data']['3. Last Refreshed']   
-        date_keys = list(item["Time Series (Daily)"].keys())
+        #date_keys = list(item["Time Series (Daily)"].keys())
+        date_keys = list(item["Weekly Time Series"].keys())
         date_keys_f = [to_date(d) for d in date_keys]
         latest_day = max(date_keys_f)
         latest_day_100 = latest_day - offset_days
         date_keys_100days_f = [to_date(d).strftime("%Y-%m-%d") for d in date_keys if to_date(d) <= latest_day and to_date(d) >=latest_day_100]
         latest_day_f = latest_day.strftime("%Y-%m-%d")
-        latest_stock_info = item["Time Series (Daily)"][latest_day_f]
+        #latest_stock_info = item["Time Series (Daily)"][latest_day_f]
+        latest_stock_info = item["Weekly Time Series"][latest_day_f]
 
 
         latest_close = float(latest_stock_info['4. close'])
@@ -115,21 +114,22 @@ if __name__ == "__main__":
         # looping through last 52 weeks to extract required variables. useful for writing csv and creating lists for high prices and low prices
         # currently the prgram is looking at less than 52 weeks data because the data set has less than 52 weeks
         for date in date_keys_100days_f:
-            timeseries_meta = item["Time Series (Daily)"][date]
-            daily_open = timeseries_meta["1. open"]
-            daily_high = timeseries_meta["2. high"]
-            daily_low = timeseries_meta["3. low"]
-            daily_close = timeseries_meta["4. close"]
-            daily_volume = timeseries_meta["5. volume"]
-            high_price.append(daily_high)
+            #timeseries_meta = item["Time Series (Daily)"][date]
+            timeseries_meta = item["Weekly Time Series"][date]
+            weekly_open = timeseries_meta["1. open"]
+            weekly_high = timeseries_meta["2. high"]
+            weekly_low = timeseries_meta["3. low"]
+            weekly_close = timeseries_meta["4. close"]
+            weekly_volume = timeseries_meta["5. volume"]
+            high_price.append(weekly_high)
             high_price_f = [float(i) for i in high_price]
-            low_price.append(daily_low)
+            low_price.append(weekly_low)
             low_price_f = [float(i) for i in low_price]
             
             # writes values in csv file
             with open(file_name, "a") as csv_detail:            
                 writer = csv.DictWriter(csv_detail, fieldnames = ["timestamp", "open", "high", "low", "close", "volume"])
-                writer.writerow({"timestamp": date, "open": daily_open, "high": daily_high, "low": daily_low, "close": daily_close,"volume": daily_volume})
+                writer.writerow({"timestamp": date, "open": weekly_open, "high": weekly_high, "low": weekly_low, "close": weekly_close,"volume": weekly_volume})
 
 
         # variables needed to calulate recommendation engine; high price and low price
@@ -144,13 +144,13 @@ if __name__ == "__main__":
         # recommendation engine
         if sensitivity_factor_low > 0 and sensitivity_factor_low <= 1.05:
             recommendation = "BUY!!"
-            recommendation_reason = "THE CURRENT CLOSING PRICE IS AROUND THE LAST 100 DAYS LOWEST PRICE. YOU MUST BUY IT"
+            recommendation_reason = "THE CURRENT CLOSING PRICE IS AROUND LOWEST IN LAST 52 WEEKS. YOU MUST BUY IT"
         elif sensitivity_factor_low > 1.05 and sensitivity_factor_low <= 1.25:
             recommendation = "WE NEED TO DO A THROUGH EVALUATION OF THIS STOCK. BOOK AN APOINTMENT WITH US NOW"
-            recommendation_reason = "THE CURRENT CLOSING IS INBETWEEN 100 DAYS HIGH AND LOW. WE NEED TO CONSIDER ADDITIONAL FACTORS BEFORE YOU CAN BUY THIS STOCK"
+            recommendation_reason = "THE CURRENT CLOSING IS INBETWEEN LAST 52 WEEKS HIGH AND LOW. WE NEED TO CONSIDER ADDITIONAL FACTORS BEFORE YOU CAN BUY THIS STOCK"
         else:
             recommendation = "DO NOT BUY"
-            recommendation_reason = "OUR DATA SUGGESTS THAT THE PRICE COULD GO FURTHER LOW OR THE STOCK HAS PICKED UP SUFFICIENTLY FROM RECENT LOW THAT IF IT GOES DOWN NOW, YOU COULD INCUR A HUGE LOSS"
+            recommendation_reason = "OUR DATA SUGGESTS THAT THE PRICE COULD GO FURTHER LOW OR THE STOCK HAS PICKED UP SUFFICIENTLY FROM RECENT 52 WEEKS LOW THAT IF IT GOES DOWN NOW, YOU COULD INCUR A HUGE LOSS"
 
         # writing recommendation to CLI
         print("-------------------------")
@@ -161,8 +161,8 @@ if __name__ == "__main__":
         print("-------------------------")
         print(f"LATEST DAY: {last_refreshed}")
         print(f"LATEST CLOSE: {latest_close_f}")
-        print(f"100 DAYS HIGH: {recent_high_f}")
-        print(f"100 DAYS LOW: {recent_low_f}")
+        print(f"52 WEEKS HIGH: {recent_high_f}")
+        print(f"52 WEEKS LOW: {recent_low_f}")
         print("-------------------------")
         print(f"RECOMMENDATION: {recommendation}")
         print(f"RECOMMENDATION REASON: {recommendation_reason}")
