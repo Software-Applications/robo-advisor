@@ -107,7 +107,7 @@ if __name__ == "__main__":
             os.remove(file_name)
 
         # writes csv header
-        with open(file_name, "w") as csv_header:
+        with open(file_name, "w", newline = '') as csv_header:
             header = csv.DictWriter(csv_header, fieldnames = ["timestamp", "open", "high", "low", "close", "volume"])
             header.writeheader()
 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
             low_price_f = [float(i) for i in low_price]
             
             # writes values in csv file
-            with open(file_name, "a") as csv_detail:            
+            with open(file_name, "a", newline = '') as csv_detail:            
                 writer = csv.DictWriter(csv_detail, fieldnames = ["timestamp", "open", "high", "low", "close", "volume"])
                 writer.writerow({"timestamp": date, "open": weekly_open, "high": weekly_high, "low": weekly_low, "close": weekly_close,"volume": weekly_volume})
 
